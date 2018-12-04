@@ -4,6 +4,7 @@ import ApiEndpointInterface from "../Interfaces/ApiEndpointInterface";
 import PaginationOptions from "../Types/PaginationOptions";
 import CountryPermissionCollection from "../Types/CountryPermissionCollection";
 import LimitCollection from "../Types/LimitCollection";
+import PinCodeAssignmentCollection from "../Types/PinCodeAssignmentCollection";
 
 export default class Card implements ApiEndpointInterface {
     ApiAdapter: ApiAdapter;
@@ -73,69 +74,86 @@ export default class Card implements ApiEndpointInterface {
     }
 
     /**
- *
- * @param options
- * @returns {Promise<any>}
- */
-    public async activate(
-        userId: number,
-        cardId: number,
-        activationCode: string,
-        options: any = {}) {
+     *
+     * @param options
+     * @returns {Promise<any>}
+     */
+    public async activate(userId: number, cardId: number, activationCode: string, options: any = {}) {
         const limiter = this.ApiAdapter.RequestLimitFactory.create("/card", "PUT");
 
-        const response = await limiter.run(async () => this.ApiAdapter.put(`/v1/user/${userId}/card/${cardId}`, { "activation_code": activationCode }));
+        const response = await limiter.run(async () =>
+            this.ApiAdapter.put(`/v1/user/${userId}/card/${cardId}`, { activation_code: activationCode })
+        );
 
         return response.Response;
     }
 
     /**
- *
- * @param options
- * @returns {Promise<any>}
- */
-    public async setPinCode(
-        userId: number,
-        cardId: number,
-        pincode: string,
-        options: any = {}) {
+     *
+     * @param options
+     * @returns {Promise<any>}
+     */
+    public async setPinCode(userId: number, cardId: number, pinCode: string, options: any = {}) {
         const limiter = this.ApiAdapter.RequestLimitFactory.create("/card", "PUT");
 
-        const response = await limiter.run(async () => this.ApiAdapter.put(`/v1/user/${userId}/card/${cardId}`, { "pin_code": pincode }));
+        const response = await limiter.run(async () =>
+            this.ApiAdapter.put(`/v1/user/${userId}/card/${cardId}`, { pin_code: pinCode })
+        );
 
         return response.Response;
     }
 
     /**
- *
- * @param options
- * @returns {Promise<any>}
- */
-    public async setLimits(
+     *
+     * @param options
+     * @returns {Promise<any>}
+     */
+    public async setPinCodeAssignment(
         userId: number,
         cardId: number,
-        limits: LimitCollection,
-        options: any = {}) {
+        pinCodeAssignment: PinCodeAssignmentCollection,
+        options: any = {}
+    ) {
         const limiter = this.ApiAdapter.RequestLimitFactory.create("/card", "PUT");
 
-        const response = await limiter.run(async () => this.ApiAdapter.put(`/v1/user/${userId}/card/${cardId}`, { "card_limit": limits }));
+        const response = await limiter.run(async () =>
+            this.ApiAdapter.put(`/v1/user/${userId}/card/${cardId}`, { pin_code_assignment: pinCodeAssignment })
+        );
 
         return response.Response;
     }
 
     /**
- *
- * @param options
- * @returns {Promise<any>}
- */
+     *
+     * @param options
+     * @returns {Promise<any>}
+     */
+    public async setLimits(userId: number, cardId: number, limits: LimitCollection, options: any = {}) {
+        const limiter = this.ApiAdapter.RequestLimitFactory.create("/card", "PUT");
+
+        const response = await limiter.run(async () =>
+            this.ApiAdapter.put(`/v1/user/${userId}/card/${cardId}`, { card_limit: limits })
+        );
+
+        return response.Response;
+    }
+
+    /**
+     *
+     * @param options
+     * @returns {Promise<any>}
+     */
     public async setCountryPermissions(
         userId: number,
         cardId: number,
         countryPermissions: CountryPermissionCollection,
-        options: any = {}) {
+        options: any = {}
+    ) {
         const limiter = this.ApiAdapter.RequestLimitFactory.create("/card", "PUT");
 
-        const response = await limiter.run(async () => this.ApiAdapter.get(`/v1/user/${userId}/card/${cardId}`, { "country_permission": countryPermissions }));
+        const response = await limiter.run(async () =>
+            this.ApiAdapter.get(`/v1/user/${userId}/card/${cardId}`, { country_permission: countryPermissions })
+        );
 
         return response.Response;
     }

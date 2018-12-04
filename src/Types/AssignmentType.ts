@@ -1,6 +1,3 @@
-type AssignmentType =
-    | "PRIMARY"
-    | "SECONDARY"
-    | "TERTIARY";
+type AssignmentType = "PRIMARY" | "SECONDARY" | "TERTIARY";
 
 export default AssignmentType;
