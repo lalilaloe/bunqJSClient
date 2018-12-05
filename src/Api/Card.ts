@@ -5,6 +5,9 @@ import PaginationOptions from "../Types/PaginationOptions";
 import CountryPermissionCollection from "../Types/CountryPermissionCollection";
 import LimitCollection from "../Types/LimitCollection";
 import PinCodeAssignmentCollection from "../Types/PinCodeAssignmentCollection";
+import Amount from "../Types/Amount";
+import Limit from "../Types/Limit";
+import MagStripePermission from "../Types/MagStripePermission";
 
 export default class Card implements ApiEndpointInterface {
     ApiAdapter: ApiAdapter;
@@ -86,7 +89,10 @@ export default class Card implements ApiEndpointInterface {
         const response = await limiter.run(async () =>
             this.ApiAdapter.put(
                 `/v1/user/${userId}/card/${cardId}`,
-                { activation_code: activationCode },
+                {
+                    activation_code: activationCode,
+                    status: "ACTIVE"
+                },
                 {},
                 { isEncrypted: true }
             )
@@ -115,7 +121,7 @@ export default class Card implements ApiEndpointInterface {
     /**
      * @param {number} userId
      * @param {number} cardId
-     * @param {string} pinCodeAssignment
+     * @param {PinCodeAssignmentCollection} pinCodeAssignment
      * @param options
      * @returns {Promise<any>}
      */
@@ -131,6 +137,59 @@ export default class Card implements ApiEndpointInterface {
             this.ApiAdapter.put(
                 `/v1/user/${userId}/card/${cardId}`,
                 { pin_code_assignment: pinCodeAssignment },
+                {},
+                { isEncrypted: true }
+            )
+        );
+
+        return response.Response;
+    }
+
+    /**
+     * @param {number} userId
+     * @param {number} cardId
+     * @param {string} pinCode
+     * @param {string} activationCode
+     * @param {string} status
+     * @param {Amount} cardLimit
+     * @param {Limit} limits
+     * @param {MagStripePermission} magStripePermission
+     * @param {CountryPermissionCollection} countryPermissions
+     * @param {PinCodeAssignmentCollection} pinCodeAssignment
+     * @param {number} monetaryAccountIdFallback
+     * @param options
+     * @returns {Promise<any>}
+     */
+    public async put(
+        userId: number,
+        cardId: number,
+        pinCode: string,
+        activationCode: string,
+        status: string,
+        cardLimit: Amount,
+        limits: LimitCollection,
+        magStripePermission: MagStripePermission,
+        countryPermissions: CountryPermissionCollection,
+        pinCodeAssignment: PinCodeAssignmentCollection,
+        monetaryAccountIdFallback: number = 0,
+        options: any = {}
+    ) {
+        const limiter = this.ApiAdapter.RequestLimitFactory.create("/card", "PUT");
+
+        const response = await limiter.run(async () =>
+            this.ApiAdapter.put(
+                `/v1/user/${userId}/card/${cardId}`,
+                {
+                    pin_code: pinCode,
+                    activation_code: activationCode,
+                    status: status,
+                    card_limit: cardLimit,
+                    limit: limits,
+                    mag_stripe_permission: magStripePermission,
+                    country_permission: countryPermissions,
+                    pin_code_assignment: pinCodeAssignment,
+                    monetary_account_id_fallback: monetaryAccountIdFallback
+                },
                 {},
                 { isEncrypted: true }
             )
