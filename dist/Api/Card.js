@@ -53,7 +53,7 @@ class Card {
      */
     async activate(userId, cardId, activationCode, options = {}) {
         const limiter = this.ApiAdapter.RequestLimitFactory.create("/card", "PUT");
-        const response = await limiter.run(async () => this.ApiAdapter.put(`/v1/user/${userId}/card/${cardId}`, { activation_code: activationCode }));
+        const response = await limiter.run(async () => this.ApiAdapter.put(`/v1/user/${userId}/card/${cardId}`, { activation_code: activationCode }, {}, { isEncrypted: true }));
         return response.Response;
     }
     /**
@@ -63,17 +63,17 @@ class Card {
      */
     async setPinCode(userId, cardId, pinCode, options = {}) {
         const limiter = this.ApiAdapter.RequestLimitFactory.create("/card", "PUT");
-        const response = await limiter.run(async () => this.ApiAdapter.put(`/v1/user/${userId}/card/${cardId}`, { pin_code: pinCode }));
+        const response = await limiter.run(async () => this.ApiAdapter.put(`/v1/user/${userId}/card/${cardId}`, { pin_code: pinCode }, {}, { isEncrypted: true }));
         return response.Response;
     }
     /**
- *
- * @param options
- * @returns {Promise<any>}
- */
+     *
+     * @param options
+     * @returns {Promise<any>}
+     */
     async setPinCodeAssignment(userId, cardId, pinCodeAssignment, options = {}) {
         const limiter = this.ApiAdapter.RequestLimitFactory.create("/card", "PUT");
-        const response = await limiter.run(async () => this.ApiAdapter.put(`/v1/user/${userId}/card/${cardId}`, { pin_code_assignment: pinCodeAssignment }));
+        const response = await limiter.run(async () => this.ApiAdapter.put(`/v1/user/${userId}/card/${cardId}`, { pin_code_assignment: pinCodeAssignment }, {}, { isEncrypted: true }));
         return response.Response;
     }
     /**
@@ -83,7 +83,7 @@ class Card {
      */
     async setLimits(userId, cardId, limits, options = {}) {
         const limiter = this.ApiAdapter.RequestLimitFactory.create("/card", "PUT");
-        const response = await limiter.run(async () => this.ApiAdapter.put(`/v1/user/${userId}/card/${cardId}`, { card_limit: limits }));
+        const response = await limiter.run(async () => this.ApiAdapter.put(`/v1/user/${userId}/card/${cardId}`, { card_limit: limits }, {}, { isEncrypted: true }));
         return response.Response;
     }
     /**
@@ -93,7 +93,7 @@ class Card {
      */
     async setCountryPermissions(userId, cardId, countryPermissions, options = {}) {
         const limiter = this.ApiAdapter.RequestLimitFactory.create("/card", "PUT");
-        const response = await limiter.run(async () => this.ApiAdapter.get(`/v1/user/${userId}/card/${cardId}`, { country_permission: countryPermissions }));
+        const response = await limiter.run(async () => this.ApiAdapter.put(`/v1/user/${userId}/card/${cardId}`, { country_permission: countryPermissions }, {}, { isEncrypted: true }));
         return response.Response;
     }
 }

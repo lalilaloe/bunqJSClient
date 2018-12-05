@@ -74,7 +74,9 @@ export default class Card implements ApiEndpointInterface {
     }
 
     /**
-     *
+     * @param {number} userId
+     * @param {number} cardId
+     * @param {string} activationCode
      * @param options
      * @returns {Promise<any>}
      */
@@ -82,14 +84,21 @@ export default class Card implements ApiEndpointInterface {
         const limiter = this.ApiAdapter.RequestLimitFactory.create("/card", "PUT");
 
         const response = await limiter.run(async () =>
-            this.ApiAdapter.put(`/v1/user/${userId}/card/${cardId}`, { activation_code: activationCode })
+            this.ApiAdapter.put(
+                `/v1/user/${userId}/card/${cardId}`,
+                { activation_code: activationCode },
+                {},
+                { isEncrypted: true }
+            )
         );
 
         return response.Response;
     }
 
     /**
-     *
+     * @param {number} userId
+     * @param {number} cardId
+     * @param {string} pinCode
      * @param options
      * @returns {Promise<any>}
      */
@@ -97,14 +106,16 @@ export default class Card implements ApiEndpointInterface {
         const limiter = this.ApiAdapter.RequestLimitFactory.create("/card", "PUT");
 
         const response = await limiter.run(async () =>
-            this.ApiAdapter.put(`/v1/user/${userId}/card/${cardId}`, { pin_code: pinCode })
+            this.ApiAdapter.put(`/v1/user/${userId}/card/${cardId}`, { pin_code: pinCode }, {}, { isEncrypted: true })
         );
 
         return response.Response;
     }
 
     /**
-     *
+     * @param {number} userId
+     * @param {number} cardId
+     * @param {string} pinCodeAssignment
      * @param options
      * @returns {Promise<any>}
      */
@@ -117,14 +128,21 @@ export default class Card implements ApiEndpointInterface {
         const limiter = this.ApiAdapter.RequestLimitFactory.create("/card", "PUT");
 
         const response = await limiter.run(async () =>
-            this.ApiAdapter.put(`/v1/user/${userId}/card/${cardId}`, { pin_code_assignment: pinCodeAssignment })
+            this.ApiAdapter.put(
+                `/v1/user/${userId}/card/${cardId}`,
+                { pin_code_assignment: pinCodeAssignment },
+                {},
+                { isEncrypted: true }
+            )
         );
 
         return response.Response;
     }
 
     /**
-     *
+     * @param {number} userId
+     * @param {number} cardId
+     * @param {LimitCollection} limits
      * @param options
      * @returns {Promise<any>}
      */
@@ -132,14 +150,16 @@ export default class Card implements ApiEndpointInterface {
         const limiter = this.ApiAdapter.RequestLimitFactory.create("/card", "PUT");
 
         const response = await limiter.run(async () =>
-            this.ApiAdapter.put(`/v1/user/${userId}/card/${cardId}`, { card_limit: limits })
+            this.ApiAdapter.put(`/v1/user/${userId}/card/${cardId}`, { card_limit: limits }, {}, { isEncrypted: true })
         );
 
         return response.Response;
     }
 
     /**
-     *
+     * @param {number} userId
+     * @param {number} cardId
+     * @param {CountryPermissionCollection} countryPermissions
      * @param options
      * @returns {Promise<any>}
      */
@@ -152,7 +172,12 @@ export default class Card implements ApiEndpointInterface {
         const limiter = this.ApiAdapter.RequestLimitFactory.create("/card", "PUT");
 
         const response = await limiter.run(async () =>
-            this.ApiAdapter.get(`/v1/user/${userId}/card/${cardId}`, { country_permission: countryPermissions })
+            this.ApiAdapter.put(
+                `/v1/user/${userId}/card/${cardId}`,
+                { country_permission: countryPermissions },
+                {},
+                { isEncrypted: true }
+            )
         );
 
         return response.Response;
