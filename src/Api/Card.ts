@@ -90,11 +90,12 @@ export default class Card implements ApiEndpointInterface {
             this.ApiAdapter.put(
                 `/v1/user/${userId}/card/${cardId}`,
                 {
-                    activation_code: activationCode,
-                    status: "ACTIVE"
+                    activation_code: activationCode
                 },
                 {},
-                { isEncrypted: true }
+                {
+                    isEncrypted: true
+                }
             )
         );
 

@@ -56,9 +56,10 @@ class Card {
     async activate(userId, cardId, activationCode, options = {}) {
         const limiter = this.ApiAdapter.RequestLimitFactory.create("/card", "PUT");
         const response = await limiter.run(async () => this.ApiAdapter.put(`/v1/user/${userId}/card/${cardId}`, {
-            activation_code: activationCode,
-            status: "ACTIVE"
-        }, {}, { isEncrypted: true }));
+            activation_code: activationCode
+        }, {}, {
+            isEncrypted: true
+        }));
         return response.Response;
     }
     /**
@@ -103,15 +104,15 @@ class Card {
     async put(userId, cardId, pinCode, activationCode, status, cardLimit, limits, magStripePermission, countryPermissions, pinCodeAssignment, monetaryAccountIdFallback = 0, options = {}) {
         const limiter = this.ApiAdapter.RequestLimitFactory.create("/card", "PUT");
         const response = await limiter.run(async () => this.ApiAdapter.put(`/v1/user/${userId}/card/${cardId}`, {
-            "pin_code": pinCode,
-            "activation_code": activationCode,
-            "status": status,
-            "card_limit": cardLimit,
-            "limit": limits,
-            "mag_stripe_permission": magStripePermission,
-            "country_permission": countryPermissions,
-            "pin_code_assignment": pinCodeAssignment,
-            "monetary_account_id_fallback": monetaryAccountIdFallback
+            pin_code: pinCode,
+            activation_code: activationCode,
+            status: status,
+            card_limit: cardLimit,
+            limit: limits,
+            mag_stripe_permission: magStripePermission,
+            country_permission: countryPermissions,
+            pin_code_assignment: pinCodeAssignment,
+            monetary_account_id_fallback: monetaryAccountIdFallback
         }, {}, { isEncrypted: true }));
         return response.Response;
     }
