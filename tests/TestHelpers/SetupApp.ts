@@ -37,14 +37,14 @@ export default async (setupName: string | false = false, apiKey: string = FAKE_A
 
     // installation
     app.Session.serverPublicKeyPem = `-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA2cKx+z2NbEapmQWvvov2
-n0k699ZJmWn1yZulOfVeSfHKdGAVj4TlWwAJuvFmThgtHTp+PiJUxKsNUrHHcp+A
-CY0mVH+6f19roBH/B4IS7H5fnXMnpf39IfPDw+hv17bKE+dnuhPuEcloG+LgEOgo
-cjwEb18h5IR3dfbxBHXUce2i4wqfGakAzHumJbPb5XgMMYxng+fqV7uH34CpRpS0
-4bzjuvkwMlRWQsIMUuOvcAjRoCMf1aViFd2+4sEm7RFlyux5PKkq72F/GITirzlA
-T7T22qrApKnZNPR9y0pGC13FFdx5lVszBNnsKyXDwqrzOsUONSFU+F6JRg6xqUoC
-iQIDAQAB
------END PUBLIC KEY-----`;
+    MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzFDA/4F0+vZYt44hleIb
+    Syji8VhwKhwVehKFEZWsbM3/AC8ue6FWC0xgqmQNt+/HOVz86qEFAUKpc0GphrxL
+    7AMvu6Cytp3JfwexQdAWjoU9zYdzAcmOguPqmifnae+JDGpnW+WHyzz7aD27Nzb5
+    N82Dj7PTHhm2T5sb5lo5K3UBRXufpzSAgmcz84OkphSoE7xJX9nck0vTLdDbReMV
+    Fs/lzMaqT7d1kFCdcZmy3f0N9ElTSLbz+iOuhH/F3sLNifKdWCwpeJwi3QR/w77z
+    nMa/MHcIsFCScpemIDJn5LyjTOgY9sbVeTw7F7/wM5BF2ndRCGIxkLkzFHeZJZp4
+    SwIDAQAB
+    -----END PUBLIC KEY-----`;
     app.Session.serverPublicKey = await publicKeyFromPem(app.Session.serverPublicKeyPem);
     app.Session.installToken = "a4f9d888eea84f52722b9baf2f17c289d549edf6e0eccdbf868eb922be306fb6";
     app.Session.installUpdated = new Date();

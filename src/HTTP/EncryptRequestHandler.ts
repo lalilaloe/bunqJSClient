@@ -39,7 +39,7 @@ export default class EncryptRequestHandler {
         const key = forge.random.getBytesSync(this.AES_KEY_LENGTH);
         const iv = forge.random.getBytesSync(this.INITIATION_VECTOR_LENGTH);
 
-        const encryptedAesKey = this.encryptPublic(key, this.Session.publicKey);
+        const encryptedAesKey = this.encryptPublic(key, this.Session.serverPublicKey);
         const encryptedBody = this.encrypt(body, key, iv);
         const hmacBuffer = this.hmac(key, iv + encryptedBody);
 
