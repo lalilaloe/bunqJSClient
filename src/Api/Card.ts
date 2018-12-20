@@ -69,4 +69,30 @@ export default class Card implements ApiEndpointInterface {
 
         return response.Response;
     }
+
+    /**
+     * @param {number} userId
+     * @param {number} cardId
+     * @param {string} activationCode
+     * @param options
+     * @returns {Promise<any>}
+     */
+    public async activate(userId: number, cardId: number, activationCode: string, options: any = {}) {
+        const limiter = this.ApiAdapter.RequestLimitFactory.create("/card", "PUT");
+
+        const response = await limiter.run(async () =>
+            this.ApiAdapter.put(
+                `/v1/user/${userId}/card/${cardId}`,
+                {
+                    activation_code: activationCode
+                },
+                {},
+                {
+                    isEncrypted: true
+                }
+            )
+        );
+
+        return response.Response;
+    }
 }

@@ -1,79 +1,79 @@
 {
-  "name": "@bunq-community/bunq-js-client",
-  "version": "0.36.0",
-  "license": "MIT",
-  "scripts": {
-    "prebuild": "rm -r dist/*",
-    "build": "tsc --listFiles --newline lf",
-    "build:dev": "tsc -w --newline lf",
-    "test": "npm run test:prettier && npm run test:jest",
-    "posttest": "rm -r tests/custom-db/*",
-    "test:dev": "cross-env ENV_CI=true DEV_MODE=true jest --verbose --watch --config jest.config.js",
-    "test:jest": "cross-env ENV_CI=true jest --verbose --forceExit --config jest.config.js",
-    "test:prettier": "prettier-check \"+(tests|src)/**/**.+(js|ts)\" --tab-width 4 --print-width 120",
-    "prettier": "./node_modules/.bin/prettier --tab-width 4 --print-width 120 --write \"+(tests|src)/**/**.+(js|ts)\"",
-    "preversion": "npm run build"
-  },
-  "main": "./dist/BunqJSClient.js",
-  "types": "./dist/BunqJSClient.d.ts",
-  "files": [
-    "dist/**/*"
-  ],
-  "dependencies": {
-    "awaiting": "^3.0.0",
-    "axios": "^0.16.2",
-    "es6-promise-promise": "^1.0.0",
-    "loglevel": "^1.4.1",
-    "node-forge": "^0.7.1",
-    "store": "^2.0.12",
-    "typescript": "^2.5.3"
-  },
-  "devDependencies": {
-    "@babel/cli": "^7.0.0",
-    "@babel/core": "^7.0.0",
-    "@babel/plugin-proposal-class-properties": "^7.0.0",
-    "@babel/plugin-proposal-decorators": "^7.0.0",
-    "@babel/plugin-proposal-do-expressions": "^7.0.0",
-    "@babel/plugin-proposal-export-default-from": "^7.0.0",
-    "@babel/plugin-proposal-export-namespace-from": "^7.0.0",
-    "@babel/plugin-proposal-function-bind": "^7.0.0",
-    "@babel/plugin-proposal-function-sent": "^7.0.0",
-    "@babel/plugin-proposal-json-strings": "^7.0.0",
-    "@babel/plugin-proposal-logical-assignment-operators": "^7.0.0",
-    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.0.0",
-    "@babel/plugin-proposal-numeric-separator": "^7.0.0",
-    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
-    "@babel/plugin-proposal-optional-chaining": "^7.0.0",
-    "@babel/plugin-proposal-pipeline-operator": "^7.0.0",
-    "@babel/plugin-proposal-throw-expressions": "^7.0.0",
-    "@babel/plugin-syntax-dynamic-import": "^7.0.0",
-    "@babel/plugin-syntax-import-meta": "^7.0.0",
-    "@babel/plugin-transform-runtime": "^7.0.0",
-    "@babel/preset-env": "^7.0.0",
-    "@types/jest": "^21.1.8",
-    "@types/moxios": "^0.4.8",
-    "@types/node": "^8.10.38",
-    "coveralls": "^3.0.0",
-    "cross-env": "^5.2.0",
-    "dotenv": "^6.0.0",
-    "jest": "^21.2.1",
-    "json-store": "^1.0.0",
-    "moxios": "^0.4.0",
-    "node-json-db": "^0.7.3",
-    "prettier": "^1.14.2",
-    "prettier-check": "^2.0.0",
-    "ts-jest": "^23.1.4"
-  },
-  "engines": {
-    "node": ">=8.0.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/bunqCommunity/bunqJSClient.git"
-  },
-  "author": "",
-  "bugs": {
-    "url": "https://github.com/bunqCommunity/bunqJSClient/issues"
-  },
-  "homepage": "https://github.com/bunqCommunity/bunqJSClient#readme"
+    "name": "@bunq-community/bunq-js-client",
+    "version": "0.36.0",
+    "license": "MIT",
+    "scripts": {
+        "prebuild": "rm -r dist/*",
+        "build": "tsc --listFiles --newline lf",
+        "build:dev": "tsc -w --newline lf",
+        "test": "npm run test:jest",
+        "posttest": "rm -r tests/custom-db/*",
+        "test:dev": "cross-env ENV_CI=true DEV_MODE=true jest --verbose --watch --config jest.config.js",
+        "test:jest": "cross-env ENV_CI=true jest --verbose --forceExit --config jest.config.js",
+        "test:prettier": "prettier-check \"+(tests|src)/**/**.+(js|ts)\" --tab-width 4 --print-width 120",
+        "prettier": "./node_modules/.bin/prettier --tab-width 4 --print-width 120 --write \"+(tests|src)/**/**.+(js|ts)\"",
+        "preversion": "npm run build"
+    },
+    "main": "./dist/BunqJSClient.js",
+    "types": "./dist/BunqJSClient.d.ts",
+    "files": [
+        "dist/**/*"
+    ],
+    "dependencies": {
+        "awaiting": "^3.0.0",
+        "axios": "^0.16.2",
+        "es6-promise-promise": "^1.0.0",
+        "loglevel": "^1.4.1",
+        "node-forge": "^0.7.1",
+        "store": "^2.0.12",
+        "typescript": "^2.5.3"
+    },
+    "devDependencies": {
+        "@babel/cli": "^7.0.0",
+        "@babel/core": "^7.0.0",
+        "@babel/plugin-proposal-class-properties": "^7.0.0",
+        "@babel/plugin-proposal-decorators": "^7.0.0",
+        "@babel/plugin-proposal-do-expressions": "^7.0.0",
+        "@babel/plugin-proposal-export-default-from": "^7.0.0",
+        "@babel/plugin-proposal-export-namespace-from": "^7.0.0",
+        "@babel/plugin-proposal-function-bind": "^7.0.0",
+        "@babel/plugin-proposal-function-sent": "^7.0.0",
+        "@babel/plugin-proposal-json-strings": "^7.0.0",
+        "@babel/plugin-proposal-logical-assignment-operators": "^7.0.0",
+        "@babel/plugin-proposal-nullish-coalescing-operator": "^7.0.0",
+        "@babel/plugin-proposal-numeric-separator": "^7.0.0",
+        "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
+        "@babel/plugin-proposal-optional-chaining": "^7.0.0",
+        "@babel/plugin-proposal-pipeline-operator": "^7.0.0",
+        "@babel/plugin-proposal-throw-expressions": "^7.0.0",
+        "@babel/plugin-syntax-dynamic-import": "^7.0.0",
+        "@babel/plugin-syntax-import-meta": "^7.0.0",
+        "@babel/plugin-transform-runtime": "^7.0.0",
+        "@babel/preset-env": "^7.0.0",
+        "@types/jest": "^21.1.8",
+        "@types/moxios": "^0.4.8",
+        "@types/node": "^8.10.38",
+        "coveralls": "^3.0.0",
+        "cross-env": "^5.2.0",
+        "dotenv": "^6.0.0",
+        "jest": "^21.2.1",
+        "json-store": "^1.0.0",
+        "moxios": "^0.4.0",
+        "node-json-db": "^0.7.3",
+        "prettier": "^1.14.2",
+        "prettier-check": "^2.0.0",
+        "ts-jest": "^23.1.4"
+    },
+    "engines": {
+        "node": ">=8.0.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/bunqCommunity/bunqJSClient.git"
+    },
+    "author": "",
+    "bugs": {
+        "url": "https://github.com/bunqCommunity/bunqJSClient/issues"
+    },
+    "homepage": "https://github.com/bunqCommunity/bunqJSClient#readme"
 }
