@@ -39,7 +39,7 @@ export default class EncryptRequestHandler {
         const key = forge.random.getBytesSync(this.AES_KEY_LENGTH);
         const iv = forge.random.getBytesSync(this.INITIATION_VECTOR_LENGTH);
 
-        const encryptedAesKey = this.encryptPublic(key, this.Session.serverPublicKey);
+        const encryptedAesKey = this.encryptPublic(key, this.Session.publicKey);
         const encryptedBody = this.encrypt(body, key, iv);
         const hmacBuffer = this.hmac(key, iv + encryptedBody);
 
@@ -54,18 +54,18 @@ export default class EncryptRequestHandler {
 
         // set headers
         request.setHeader("Content-Type", "multipart/form-data");
-        request.setHeader(this.HEADER_CLIENT_ENCRYPTION_HMAC, hmacBuffer);
-        request.setHeader(this.HEADER_CLIENT_ENCRYPTION_IV, iv.toString("base64"));
+        request.setHeader(this.HEADER_CLIENT_ENCRYPTION_HMAC, forge.util.encode64(hmacBuffer));
+        request.setHeader(this.HEADER_CLIENT_ENCRYPTION_IV, forge.util.encode64(iv));
         request.setHeader(this.HEADER_CLIENT_ENCRYPTION_KEY, forge.util.encode64(encryptedAesKey));
 
         return request;
     }
 
-    private hmac(key, content) {
+    public hmac(key, content) {
         const hmac = forge.hmac.create();
         hmac.start(this.HMAC_ALGORITHM, key);
         hmac.update(content);
-        return hmac.digest('base64')
+        return hmac.digest().data;
     }
 
     private encrypt(text, key, iv) {
