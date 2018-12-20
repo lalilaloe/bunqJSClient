@@ -36,8 +36,8 @@ export default class EncryptRequestHandler {
     public async encryptRequest(request: Request, options: ApiAdapterOptions): Promise<Request> {
         const body = JSON.stringify(request.requestConfig.data);
 
-        const key = crypto.randomBytes(this.AES_KEY_LENGTH);
-        const iv = crypto.randomBytes(this.INITIATION_VECTOR_LENGTH);
+        const key = forge.random.getBytesSync(this.AES_KEY_LENGTH);
+        const iv = forge.random.getBytesSync(this.INITIATION_VECTOR_LENGTH);
 
         const encryptedAesKey = this.encryptPublic(key, this.Session.serverPublicKey);
         const encryptedBody = this.encrypt(body, key, iv);
@@ -62,20 +62,25 @@ export default class EncryptRequestHandler {
     }
 
     private hmac(key, content) {
-        var hmac = crypto.createHmac(this.HMAC_ALGORITHM, key);
+        const hmac = forge.hmac.create();
+        hmac.start(this.HMAC_ALGORITHM, key);
         hmac.update(content);
-        return hmac.digest("base64");
+        return hmac.digest('base64')
     }
 
     private encrypt(text, key, iv) {
-        var cipher = crypto.createCipheriv(this.AES_ENCRYPTION_METHOD, key, iv);
-        cipher.update(text);
-        return cipher.final();
+        var cipher = forge.cipher.createCipher('AES-CBC', key);
+
+        cipher.start({ iv: iv });
+        cipher.update(forge.util.createBuffer(text));
+        cipher.finish();
+
+        var encrypted = cipher.output;
+        var data = forge.util.bytesToHex(encrypted);
+        return data;
     }
 
     private encryptPublic(key, publicKey) {
-        const messageDigest = forge.md.sha256.create();
-        messageDigest.update(key, "raw");
-        return publicKey.encrypt(messageDigest.digest().getBytes());
+        return publicKey.encrypt(key);
     }
 }
