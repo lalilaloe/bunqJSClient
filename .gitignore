@@ -12,5 +12,5 @@ tests/custom-db
 
 yarn-error.log
 
-/dist/
+#/dist/
 npm-debug.log
