@@ -74,30 +74,6 @@ export default class Request {
 
 		return this._requestConfig;
 	}
-	public getTemplate() {
-		// create a list of headers
-		const headerStrings = [];
-		Object.keys(this.headers)
-			.sort()
-			.map(headerKey => {
-				if (
-					headerKey.includes("X-Bunq") ||
-					headerKey.includes("Cache-Control") ||
-					headerKey.includes("User-Agent")
-				) {
-					headerStrings.push(`${headerKey}: ${this.headers[headerKey]}`);
-				}
-			});
-
-		// remove empty strings and join into a list of headers for the template
-		const headers = headerStrings.join("\n");
-		const template: string = `${this.method} ${this.url}
-		${headers}
-		
-		${this.data}`;
-
-		return template;
-	}
 
 	public setSigned(signature: string | false): void {
 		this._isSigned = signature;
