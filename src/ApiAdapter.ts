@@ -113,12 +113,17 @@ export default class ApiAdapter {
 		this.logger.debug(`${method}: ${url}`);
 		let formatData;
 
+		const request = new Request(url, method, data, headers, options.axiosOptions || {});
+
 		if (options.includesFile || options.isEncrypted) {
-			formatData = data;
+			request.setData(data);
+			// overwrite transformRequest
+			request.setOption("transformRequest", (data: any, headers: any) => {
+				return data;
+			});
 		} else if (method === "POST" || method === "PUT" || method === "DELETE") {
-			formatData = JSON.stringify(data);
+			request.setData(JSON.stringify(data));
 		}
-		const request = new Request(url, method, formatData, headers, options.axiosOptions || {});
 
 		if (!options.skipSessionCheck) {
 			await this.sessionValidationCheck();
