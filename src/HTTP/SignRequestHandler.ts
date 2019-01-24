@@ -59,7 +59,15 @@ export default class SignRequestHandler {
 			const params = new Url.URLSearchParams(request.requestConfig.params);
 			url = `${request.requestConfig.url}?${params.toString()}`;
 		}
-
+		// manually include the user agent
+		if (!request.getHeader("User-Agent")) {
+			if (typeof navigator === "undefined") {
+				const nodeUserAgent = `Node-${process.version}-bunqJSClient`;
+				request.setHeader("User-Agent", nodeUserAgent);
+			} else {
+				request.setHeader("User-Agent", navigator.userAgent);
+			}
+		}
 		const headerBytes = this.prepareHeaders(request)
 		const toSign = `${request.method} ${url}
 ${headerBytes}
