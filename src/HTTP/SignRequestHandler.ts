@@ -4,103 +4,67 @@ import BunqJSClient from "../BunqJSClient";
 import Session from "../Session";
 import LoggerInterface from "../Interfaces/LoggerInterface";
 import Request from "./Request";
+const forge = require("node-forge/lib/forge");
 
 import ApiAdapterOptions from "../Types/ApiAdapterOptions";
 
 export default class SignRequestHandler {
-    public Session: Session;
-    public logger: LoggerInterface;
-    public BunqJSClient: BunqJSClient;
+	public Session: Session;
 
-    constructor(Session: Session, loggerInterface: LoggerInterface, BunqJSClient: BunqJSClient) {
-        this.BunqJSClient = BunqJSClient;
-        this.Session = Session;
-        this.logger = loggerInterface;
-    }
+	constructor(Session: Session) {
+		this.Session = Session;
+	}
 
-    /**
+	/**
      * Signs a request using our privatekey
      * @param {Request} request
      * @param {ApiAdapterOptions} options
      * @returns {Promise<string>}
      */
-    public async signRequest(request: Request, options: ApiAdapterOptions): Promise<void> {
-        let url: string = request.requestConfig.url;
+	public async signRequest(request: Request, options: ApiAdapterOptions): Promise<void> {
+		const template = this.prepareTemplate(request)
+		const signature = this.generateSignature(template)
 
-        // Check if one or more param is set and add it to the url
-        if (request.requestConfig.params && Object.keys(request.requestConfig.params).length > 0) {
-            const params = new Url.URLSearchParams(request.requestConfig.params);
-            url = `${request.requestConfig.url}?${params.toString()}`;
-        }
+		request.setSigned(signature);
+	}
 
-        // manually include the user agent
-        if (typeof navigator === "undefined") {
-            const nodeUserAgent = `Node-${process.version}-bunqJSClient`;
-            request.setHeader("User-Agent", nodeUserAgent);
-        } else {
-            request.setHeader("User-Agent", navigator.userAgent);
-        }
+	public generateSignature(request: String): string {
+		const messageDigest = forge.sha256.create();
+		messageDigest.update(request, "raw");
+		const signature = this.Session.privateKey.sign(
+			messageDigest
+		)
+		return forge.util.encode64(signature);
+	}
 
-        if (options.isEncrypted || options.includesFile) {
-            // overwrite transformRequest
-            request.setOption("transformRequest", (data: any, headers: any) => {
-                return data;
-            });
-        }
+	public prepareHeaders(request: Request): string {
+		const headerStrings = [];
+		Object.keys(request.headers)
+			.sort()
+			.map(headerKey => {
+				if (
+					headerKey.includes("X-Bunq") ||
+					headerKey.includes("Cache-Control") ||
+					headerKey.includes("User-Agent")
+				) {
+					headerStrings.push(`${headerKey}: ${request.headers[headerKey]}`);
+				}
+			});
+		return headerStrings.join("\n");
+	}
 
-        // serialize the data
-        let data: string | Buffer = "";
-        const appendDataWhitelist = ["POST", "PUT", "DELETE"];
-        if (options.includesFile) {
-            const requestData: Buffer = request.data;
-            data = requestData.toString("binary");
+	public prepareTemplate(request: Request): string {
+		let url: string = request.requestConfig.url;
+		if (request.requestConfig.params && Object.keys(request.requestConfig.params).length > 0) {
+			const params = new Url.URLSearchParams(request.requestConfig.params);
+			url = `${request.requestConfig.url}?${params.toString()}`;
+		}
 
-            request.setData(requestData);
-        } else if (options.isEncrypted) {
-            const requestData: string = request.data;
-            data = requestData;
+		const headerBytes = this.prepareHeaders(request)
+		const toSign = `${request.method} ${url}
+${headerBytes}
 
-            request.setData(requestData);
-        } else if (appendDataWhitelist.some(item => item === request.method)) {
-            data = JSON.stringify(request.data);
-        }
-
-        // create a list of headers
-        const headerStrings = [];
-        Object.keys(request.headers)
-            .sort()
-            .map(headerKey => {
-                if (
-                    headerKey.includes("X-Bunq") ||
-                    headerKey.includes("Cache-Control") ||
-                    headerKey.includes("User-Agent")
-                ) {
-                    headerStrings.push(`${headerKey}: ${request.headers[headerKey]}`);
-                }
-            });
-
-        // remove empty strings and join into a list of headers for the template
-        const headers = headerStrings.join("\n");
-
-        // the full template to sign
-        const template: string = `${request.method} ${url}
-${headers}
-
-${data}`;
-
-        console.log("");
-        console.log(template);
-        console.log("");
-
-        // sign the template with our private key
-        const signature = await signString(template, this.Session.privateKey);
-
-        if (typeof navigator !== "undefined") {
-            // remove the user agent again if we're in a browser env where we aren't allowed to
-            request.removeHeader("User-Agent");
-        }
-
-        // set the signature
-        request.setSigned(signature);
-    }
+${request.data}`;
+		return toSign;
+	}
 }
