@@ -18,13 +18,9 @@ export default class EncryptRequestHandler {
 	INITIATION_VECTOR_LENGTH = 16;
 
 	public Session: Session;
-	public logger: LoggerInterface;
-	public BunqJSClient: BunqJSClient;
 
-	constructor(Session: Session, loggerInterface: LoggerInterface, BunqJSClient: BunqJSClient) {
-		this.BunqJSClient = BunqJSClient;
+	constructor(Session: Session) {
 		this.Session = Session;
-		this.logger = loggerInterface;
 	}
 
     /**
@@ -46,14 +42,8 @@ export default class EncryptRequestHandler {
 		// set new body
 		request.setData(encryptedBody);
 
-		// disable request transform
-		request.setOptions("transformRequest", data => {
-			// don't transform the data, return it directly
-			return data;
-		});
-
 		// set headers
-		request.setHeader("Content-Type", "multipart/form-data");
+		//request.setHeader("Content-Type", "multipart/form-data");
 		request.setHeader(this.HEADER_CLIENT_ENCRYPTION_HMAC, forge.util.encode64(hmacBuffer));
 		request.setHeader(this.HEADER_CLIENT_ENCRYPTION_IV, forge.util.encode64(iv));
 		request.setHeader(this.HEADER_CLIENT_ENCRYPTION_KEY, forge.util.encode64(encryptedAesKey));

@@ -18,47 +18,35 @@ export const BUNQ_REQUEST_SIGNATURE_HEADER_KEY = "X-Bunq-Client-Signature";
 export const BUNQ_REQUEST_AUTHENTICATION_HEADER_KEY = "X-Bunq-Client-Authentication";
 
 export default class ApiAdapter {
-    public Session: Session;
-    public logger: LoggerInterface;
-    public BunqJSClient: BunqJSClient;
+	public Session: Session;
+	public logger: LoggerInterface;
+	public BunqJSClient: BunqJSClient;
 
-    public RequestLimitFactory: RequestLimitFactory;
-    public SignRequestHandler: SignRequestHandler;
-    public EncryptRequestHandler: EncryptRequestHandler;
-    public VerifyResponseHandler: VerifyResponseHandler;
+	public RequestLimitFactory: RequestLimitFactory;
+	public SignRequestHandler: SignRequestHandler;
+	public EncryptRequestHandler: EncryptRequestHandler;
+	public VerifyResponseHandler: VerifyResponseHandler;
 
-    public language: string;
-    public region: string;
-    public geoLocation: string;
+	public language: string;
+	public region: string;
+	public geoLocation: string;
 
-    constructor(Session: Session, loggerInterface: LoggerInterface, BunqJSClient: BunqJSClient) {
-        this.Session = Session;
-        this.logger = loggerInterface;
-        this.BunqJSClient = BunqJSClient;
+	constructor(Session: Session, loggerInterface: LoggerInterface, BunqJSClient: BunqJSClient) {
+		this.Session = Session;
+		this.logger = loggerInterface;
+		this.BunqJSClient = BunqJSClient;
 
-        this.RequestLimitFactory = new RequestLimitFactory();
-        this.SignRequestHandler = new SignRequestHandler(this.Session, this.logger, this.BunqJSClient);
-        this.EncryptRequestHandler = new EncryptRequestHandler(this.Session, this.logger, this.BunqJSClient);
-        this.VerifyResponseHandler = new VerifyResponseHandler(this.Session, this.logger, this.BunqJSClient);
+		this.RequestLimitFactory = new RequestLimitFactory();
+		this.SignRequestHandler = new SignRequestHandler(this.Session);
+		this.EncryptRequestHandler = new EncryptRequestHandler(this.Session);
+		this.VerifyResponseHandler = new VerifyResponseHandler(this.Session);
 
-        this.language = "en_US";
-        this.region = "nl_NL";
-        this.geoLocation = "0 0 0 0 000";
-    }
+		this.language = "en_US";
+		this.region = "nl_NL";
+		this.geoLocation = "0 0 0 0 000";
+	}
 
-    public async setup() {}
-
-    /**
-     * @param {string} url
-     * @param headers
-     * @param {ApiAdapterOptions} options
-     * @returns {Promise<void>}
-     */
-    public async get(url: string, headers: any = {}, options: ApiAdapterOptions = {}) {
-        const response = await this.request(url, "GET", "", headers, options);
-
-        return response.data;
-    }
+	public async setup() { }
 
     /**
      * @param {string} url
@@ -66,22 +54,22 @@ export default class ApiAdapter {
      * @param {ApiAdapterOptions} options
      * @returns {Promise<void>}
      */
-    public async delete(url: string, headers: any = {}, options: ApiAdapterOptions = {}) {
-        const response = await this.request(url, "DELETE", {}, headers, options);
-        return response.data;
-    }
+	public async get(url: string, headers: any = {}, options: ApiAdapterOptions = {}) {
+		const response = await this.request(url, "GET", "", headers, options);
+
+		return response.data;
+	}
 
     /**
      * @param {string} url
-     * @param data
      * @param headers
      * @param {ApiAdapterOptions} options
      * @returns {Promise<void>}
      */
-    public async post(url: string, data: any = {}, headers: any = {}, options: ApiAdapterOptions = {}) {
-        const response = await this.request(url, "POST", data, headers, options);
-        return response.data;
-    }
+	public async delete(url: string, headers: any = {}, options: ApiAdapterOptions = {}) {
+		const response = await this.request(url, "DELETE", {}, headers, options);
+		return response.data;
+	}
 
     /**
      * @param {string} url
@@ -90,10 +78,22 @@ export default class ApiAdapter {
      * @param {ApiAdapterOptions} options
      * @returns {Promise<void>}
      */
-    public async put(url: string, data: any = {}, headers: any = {}, options: ApiAdapterOptions = {}) {
-        const response = await this.request(url, "PUT", data, headers, options);
-        return response.data;
-    }
+	public async post(url: string, data: any = {}, headers: any = {}, options: ApiAdapterOptions = {}) {
+		const response = await this.request(url, "POST", data, headers, options);
+		return response.data;
+	}
+
+    /**
+     * @param {string} url
+     * @param data
+     * @param headers
+     * @param {ApiAdapterOptions} options
+     * @returns {Promise<void>}
+     */
+	public async put(url: string, data: any = {}, headers: any = {}, options: ApiAdapterOptions = {}) {
+		const response = await this.request(url, "PUT", data, headers, options);
+		return response.data;
+	}
 
     /**
      * @param {string} url
@@ -103,123 +103,130 @@ export default class ApiAdapter {
      * @param {ApiAdapterOptions} options
      * @returns {Promise<any>}
      */
-    public async request(
-        url: string,
-        method: Method = "GET",
-        data: any = {},
-        headers: Headers = {},
-        options: ApiAdapterOptions = {}
-    ) {
-        this.logger.debug(`${method}: ${url}`);
-        const request = new Request(url, method, data, headers, options.axiosOptions || {});
+	public async request(
+		url: string,
+		method: Method = "GET",
+		data: any = {},
+		headers: Headers = {},
+		options: ApiAdapterOptions = {}
+	) {
+		this.logger.debug(`${method}: ${url}`);
+		let formatData;
 
-        if (!options.skipSessionCheck) {
-            await this.sessionValidationCheck();
-        }
+		if (options.includesFile || options.isEncrypted) {
+			formatData = data;
+		} else if (method === "POST" || method === "PUT" || method === "DELETE") {
+			formatData = JSON.stringify(data);
+		}
+		const request = new Request(url, method, formatData, headers, options.axiosOptions || {});
 
-        if (options.disableAuthentication !== true) {
-            // use session token or fallback to install taken if we have one
-            if (this.Session.sessionToken !== null) {
-                request.setAuthenticated(this.Session.sessionToken);
-            } else if (this.Session.installToken !== null) {
-                request.setAuthenticated(this.Session.installToken);
-            }
-        }
+		if (!options.skipSessionCheck) {
+			await this.sessionValidationCheck();
+		}
 
-        if (options.isEncrypted === true) {
-            await this.EncryptRequestHandler.encryptRequest(request, options);
-        }
+		if (options.disableAuthentication !== true) {
+			// use session token or fallback to install taken if we have one
+			if (this.Session.sessionToken !== null) {
+				request.setAuthenticated(this.Session.sessionToken);
+			} else if (this.Session.installToken !== null) {
+				request.setAuthenticated(this.Session.installToken);
+			}
+		}
 
-        if (options.disableSigning !== true) {
-            await this.SignRequestHandler.signRequest(request, options);
-        }
+		if (options.isEncrypted === true) {
+			await this.EncryptRequestHandler.encryptRequest(request, options);
+		}
 
-        // complete relative urls
-        if (request.url[0] === "/") {
-            request.setUrl(`${this.Session.environmentUrl}${request.url}`);
-        }
+		if (options.disableSigning !== true) {
+			await this.SignRequestHandler.signRequest(request, options);
+		}
 
-        let response;
-        try {
-            response = await axios.request(request.requestConfig);
-        } catch (error) {
-            this.requestErrorHandler(error);
-        }
+		// complete relative urls
+		if (request.url[0] === "/") {
+			request.setUrl(`${this.Session.environmentUrl}${request.url}`);
+		}
 
-        if (options.disableVerification !== true) {
-            const verifyResult = await this.VerifyResponseHandler.verifyResponse(response);
+		let response;
+		try {
+			response = await axios.request(request.requestConfig);
+		} catch (error) {
+			this.requestErrorHandler(error);
+		}
 
-            if (!verifyResult && (!process.env.ENV_CI || process.env.ENV_CI === "false")) {
-                // invalid response in a non-ci environment
-                throw new CustomError(
-                    "We couldn't verify the received response",
-                    response,
-                    ErrorCodes.INVALID_RESPONSE_RECEIVED
-                );
-            }
-        }
+		if (options.disableVerification !== true) {
+			const verifyResult = await this.VerifyResponseHandler.verifyResponse(response);
 
-        try {
-            // attempt to turn string result back into json when possible
-            response.data = JSON.parse(response.data);
-            return response;
-        } catch (error) {}
+			if (!verifyResult && (!process.env.ENV_CI || process.env.ENV_CI === "false")) {
+				// invalid response in a non-ci environment
+				throw new CustomError(
+					"We couldn't verify the received response",
+					response,
+					ErrorCodes.INVALID_RESPONSE_RECEIVED
+				);
+			}
+		}
 
-        return response;
-    }
+		try {
+			// attempt to turn string result back into json when possible
+			response.data = JSON.parse(response.data);
+			return response;
+		} catch (error) { }
+
+		return response;
+	}
 
     /**
      * Checks if the session is valid and waits for it to be refreshed
      * @returns {Promise<void>}
      */
-    private sessionValidationCheck = async (): Promise<void> => {
-        // check if a new session is being fetched
-        if (this.BunqJSClient.fetchingNewSession) {
-            // wait for the new session to be loaded
-            await this.BunqJSClient.fetchingNewSession;
-        } else {
-            // check if keepAlive is enabled and continue if it isn't
-            if (this.BunqJSClient.keepAlive === false) {
-                // check if a valid session is set
-                await this.BunqJSClient.registerSession();
-            }
-        }
+	private sessionValidationCheck = async (): Promise<void> => {
+		// check if a new session is being fetched
+		if (this.BunqJSClient.fetchingNewSession) {
+			// wait for the new session to be loaded
+			await this.BunqJSClient.fetchingNewSession;
+		} else {
+			// check if keepAlive is enabled and continue if it isn't
+			if (this.BunqJSClient.keepAlive === false) {
+				// check if a valid session is set
+				await this.BunqJSClient.registerSession();
+			}
+		}
 
-        // calculate amount of milliseconds until expire time
-        const expiresInMilliseconds = this.BunqJSClient.calculateSessionExpiry();
+		// calculate amount of milliseconds until expire time
+		const expiresInMilliseconds = this.BunqJSClient.calculateSessionExpiry();
 
-        if (expiresInMilliseconds < 30000) {
-            // this request will extend the expiry timer
-            const extendByMilliseconds = this.BunqJSClient.calculateSessionExpiry(true);
+		if (expiresInMilliseconds < 30000) {
+			// this request will extend the expiry timer
+			const extendByMilliseconds = this.BunqJSClient.calculateSessionExpiry(true);
 
-            // add milliseconds to current time
-            const currentDate = new Date();
-            currentDate.setTime(currentDate.getTime() + extendByMilliseconds);
+			// add milliseconds to current time
+			const currentDate = new Date();
+			currentDate.setTime(currentDate.getTime() + extendByMilliseconds);
 
-            // set updated session expiry time
-            this.Session.sessionExpiryTime = currentDate;
+			// set updated session expiry time
+			this.Session.sessionExpiryTime = currentDate;
 
-            this.logger.debug(`Request in last 30 seconds: (${expiresInMilliseconds / 1000})`);
-            this.logger.debug(`Set session expiry to ${this.Session.sessionExpiryTime}`);
-        }
-    };
+			this.logger.debug(`Request in last 30 seconds: (${expiresInMilliseconds / 1000})`);
+			this.logger.debug(`Set session expiry to ${this.Session.sessionExpiryTime}`);
+		}
+	};
 
     /**
      * Attempts to improve the error data and defaults to rethrowing it
      * @param error
      */
-    private requestErrorHandler(error) {
-        // get the data from the request if it fails
-        if (error.response && error.response.data) {
-            // parse json response if possible
-            try {
-                // attempt to turn string result back into json when possible
-                error.response.data = JSON.parse(error.response.data);
+	private requestErrorHandler(error) {
+		// get the data from the request if it fails
+		if (error.response && error.response.data) {
+			// parse json response if possible
+			try {
+				// attempt to turn string result back into json when possible
+				error.response.data = JSON.parse(error.response.data);
 
-                throw error;
-            } catch (error) {}
-        }
-        // rethrow if no json data could be found
-        throw error;
-    }
+				throw error;
+			} catch (error) { }
+		}
+		// rethrow if no json data could be found
+		throw error;
+	}
 }
