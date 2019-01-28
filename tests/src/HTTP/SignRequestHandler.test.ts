@@ -3,6 +3,7 @@ import * as moxios from "moxios";
 import BunqJSClient from "../../../src/BunqJSClient";
 import SetupApp from "../../TestHelpers/SetupApp";
 import Request from "../../../src/HTTP/Request";
+import SignRequestHandler from "../../../src/HTTP/SignRequestHandler";
 
 const method = "GET";
 const path = "/";
@@ -31,8 +32,15 @@ X-Bunq-Region: en_US
 {"amount": 10}`
 
 describe("SignRequest", () => {
-	beforeEach(function () {
+	let bunqApp: BunqJSClient;
+	let request: Request;
+	let handler: SignRequestHandler;
+
+	beforeEach(async function () {
 		moxios.install();
+		bunqApp = await SetupApp();
+		request = new Request(path, method, body, headers);
+		handler = bunqApp.ApiAdapter.SignRequestHandler;
 	});
 
 	afterEach(function () {
@@ -40,69 +48,46 @@ describe("SignRequest", () => {
 	});
 
 	it("can prepare an template to sign from an HTTP request", async () => {
-		const bunqApp: BunqJSClient = await SetupApp();
-		let request = new Request(path, method, body, headers);
-
-		let handler = bunqApp.ApiAdapter.SignRequestHandler;
 		const toSign = await handler.prepareTemplate(request)
 		expect(toSign).toBe(expectedToSign)
 	})
 
 	it("given a header other than Cache-Control, User-Agent and X-Bunq omits that from the template", async () => {
-		const bunqApp: BunqJSClient = await SetupApp();
-		let request = new Request(path, method, body, headers);
 		request.setHeader("Accept", '*/*');
 		request.setHeader("Content-Type", 'application/json');
 
-		let handler = bunqApp.ApiAdapter.SignRequestHandler;
 		const toSign = await handler.prepareTemplate(request)
 		expect(toSign).toBe(expectedToSign)
 	})
 
 	it("can sign a template correctly from an HTTP request", async () => {
-		const bunqApp: BunqJSClient = await SetupApp();
-		let request = new Request(path, method, body, headers);
-
-		let handler = bunqApp.ApiAdapter.SignRequestHandler;
 		await handler.signRequest(request, null)
 		expect(request.isSigned).toBe(expectedSignature)
 	})
 
 	it("given a header other than Cache-Control, User-Agent and X-Bunq omits that header from the signature", async () => {
-		const bunqApp: BunqJSClient = await SetupApp();
-		let request = new Request(path, method, body, headers);
 		request.setHeader("Accept", '*/*');
 		request.setHeader("Content-Type", 'application/json');
-
-		let handler = bunqApp.ApiAdapter.SignRequestHandler;
 		await handler.signRequest(request, null)
 
 		expect(request.isSigned).toBe(expectedSignature)
 	})
 
 	it("given a different HTTP method creates a different signature", async () => {
-		const bunqApp: BunqJSClient = await SetupApp();
-		let request = new Request(path, 'POST', body, headers);
-		let handler = bunqApp.ApiAdapter.SignRequestHandler;
+		request = new Request(path, 'POST', body, headers);
 		await handler.signRequest(request, null)
 
 		expect(request.isSigned).not.toBe(expectedSignature)
 	})
 
 	it("given a different HTTP path creates a different signature", async () => {
-		const bunqApp: BunqJSClient = await SetupApp();
-		let request = new Request('/installation', method, body, headers);
-		let handler = bunqApp.ApiAdapter.SignRequestHandler;
-
+		request = new Request('/installation', method, body, headers);
 		await handler.signRequest(request, null)
 
 		expect(request.isSigned).not.toBe(expectedSignature)
 	})
 	it("given a different body creates a different signature", async () => {
-		const bunqApp: BunqJSClient = await SetupApp();
 		let request = new Request(path, method, { amount: 50 }, headers);
-		let handler = bunqApp.ApiAdapter.SignRequestHandler;
-
 		await handler.signRequest(request, null)
 
 		expect(request.isSigned).not.toBe(expectedSignature)
