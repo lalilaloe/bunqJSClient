@@ -115,13 +115,7 @@ export default class ApiAdapter {
 
 		const request = new Request(url, method, data, headers, options.axiosOptions || {});
 
-		if (options.includesFile || options.isEncrypted) {
-			request.setData(data);
-			// overwrite transformRequest
-			request.setOption("transformRequest", (data: any, headers: any) => {
-				return data;
-			});
-		} else if (method === "POST" || method === "PUT" || method === "DELETE") {
+		if (method === "POST" || method === "PUT" || method === "DELETE") {
 			request.setData(JSON.stringify(data));
 		}
 
@@ -144,6 +138,12 @@ export default class ApiAdapter {
 
 		if (options.disableSigning !== true) {
 			await this.SignRequestHandler.signRequest(request, options);
+		}
+
+		if (options.includesFile || options.isEncrypted) {
+			request.setOption("transformRequest", (data, headers) => {
+				return data;
+			});
 		}
 
 		// complete relative urls

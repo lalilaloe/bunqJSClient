@@ -65,6 +65,13 @@ describe("SignRequest", () => {
 		expect(request.isSigned).toBe(expectedSignature)
 	})
 
+	it("can sign a template with encrypted data correctly", async () => {
+		const hex2bin = str => str.match(/.{1,2}/g).reduce((str, hex) => str += String.fromCharCode(parseInt(hex, 16)), '');
+		request.setData(hex2bin("b4086697c4fa9af691ca18c49635e5d8930afed8051b3a10ce77d3997dcd10c2"));
+		await handler.signRequest(request, null)
+		expect(request.isSigned).toBe("YbhmVnIZsXcKE2bLmxdkdADJUvasOz1uF8NUyTI9uCxn6Ei1pmmyTzCb6zDUPkqdIlIo65LZPDIqtdLwmLS67Z51HWf/yNP28/StD8gOMt9QwLATo3gPPabIv62Val0Xk6jhX+BY1/fdAZSahPzHtdQWzS9gewdp7DwdYoGHxpuGA7YQgEBddg2CS9WwqJd2M33MYoyaPk+oF9XIWpM4DqZH6Asn+Ayo5wdKwdNOxr47oe5WIrjY+fTpUKV+UqZpXdqS9OopaJIOSJJS8eLrkfwuqRgW3m/MPGKnpe0XnscDbbdxvRj6PijN/x/a5GkDmzevnqQyKkKJjbFqu+93Rw==")
+	})
+
 	it("given a header other than Cache-Control, User-Agent and X-Bunq omits that header from the signature", async () => {
 		request.setHeader("Accept", '*/*');
 		request.setHeader("Content-Type", 'application/json');

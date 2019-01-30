@@ -30,7 +30,7 @@ export default class SignRequestHandler {
 
 	public generateSignature(request: String): string {
 		const messageDigest = forge.sha256.create();
-		messageDigest.update(request, "raw");
+		messageDigest.update(request, "utf8");
 		const signature = this.Session.privateKey.sign(
 			messageDigest
 		)
@@ -73,6 +73,7 @@ export default class SignRequestHandler {
 ${headerBytes}
 
 ${request.data}`;
+
 		return toSign;
 	}
 }
