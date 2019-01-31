@@ -34,13 +34,16 @@ export default class EncryptRequestHandler {
 
 		const key = forge.random.getBytesSync(this.AES_KEY_LENGTH);
 		const iv = forge.random.getBytesSync(this.INITIATION_VECTOR_LENGTH);
+		// const hex2bin = str => str.match(/.{1,2}/g).reduce((str, hex) => str += String.fromCharCode(parseInt(hex, 16)), '');
+		// const iv = hex2bin("9916624005aff27d337cb4710065eb84");
+		// const key = hex2bin("b4086697c4fa9af691ca18c49635e5d8930afed8051b3a10ce77d3997dcd10c2");
 
 		const encryptedAesKey = this.encryptPublic(key, this.Session.serverPublicKey);
 		const encryptedBody = this.encrypt(body, key, iv);
 		const hmacBuffer = this.hmac(key, iv + encryptedBody);
 
 		// set new body
-		request.setData(encryptedBody);
+		request.setData(Buffer.from(encryptedBody, 'binary'));
 
 		// set headers
 		//request.setHeader("Content-Type", "multipart/form-data");

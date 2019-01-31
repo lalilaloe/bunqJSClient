@@ -24,6 +24,17 @@ export default class SignRequestHandler {
 	public async signRequest(request: Request, options: ApiAdapterOptions): Promise<void> {
 		const template = this.prepareTemplate(request)
 		const signature = this.generateSignature(template)
+		const fs = require('fs');
+		let uriPath = request.requestConfig.url;
+		uriPath = uriPath.replace(/[^a-z0-9]/gi, "-");
+
+		fs.writeFile('/home/jonathan/dev/bunqJSClient/debug/toSign-' + uriPath + '.txt', template, function (err) {
+			if (err) throw err;
+		});
+		fs.writeFile('/home/jonathan/dev/bunqJSClient/debug/Signed-' + uriPath + '.txt', template, function (err) {
+			if (err) throw err;
+		});
+
 
 		request.setSigned(signature);
 	}
@@ -68,11 +79,12 @@ export default class SignRequestHandler {
 				request.setHeader("User-Agent", navigator.userAgent);
 			}
 		}
-		const headerBytes = this.prepareHeaders(request)
+		const headerBytes = this.prepareHeaders(request);
+		const data = request.data.toString('binary');
 		const toSign = `${request.method} ${url}
 ${headerBytes}
 
-${request.data}`;
+${data}`;
 
 		return toSign;
 	}

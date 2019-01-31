@@ -24,7 +24,7 @@ describe("EncryptRequest", () => {
 	let handler: EncryptRequestHandler;
 	let server_private_key: any;
 	let encryption_data: Request;
-	let encrypted_body: string;
+	let encrypted_body: Buffer;
 	let headers: any;
 	let iv: string;
 	let encrypted_key: string;
@@ -76,7 +76,7 @@ describe("EncryptRequest", () => {
 		const key = server_private_key.decrypt(encrypted_key);
 		expect(key).toBeDefined();
 
-		let test_hmac = handler.hmac(key, iv + encrypted_body)
+		let test_hmac = handler.hmac(key, iv + encrypted_body.toString('binary'))
 
 		expect(hmac).toEqual(test_hmac);
 	});
