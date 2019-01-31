@@ -69,38 +69,4 @@ export default class Card implements ApiEndpointInterface {
 
 		return response.Response;
 	}
-
-    /**
-     * @param {number} userId
-     * @param {number} cardId
-     * @param {string} pinCode
-     * @param options
-     * @returns {Promise<any>}
-     */
-	public async pincode(userId: number, cardId: number, pinCode: string, options: any = {}) {
-		const limiter = this.ApiAdapter.RequestLimitFactory.create("/card", "PUT");
-
-		const response = await limiter.run(async () =>
-			this.ApiAdapter.put(
-				`/v1/user/${userId}/card/${cardId}`,
-				{
-					pin_code: pinCode,
-					activation_code: null,
-					status: null,
-					card_limit: null,
-					limit: null,
-					mag_stripe_permission: null,
-					country_permission: null,
-					pin_code_assignment: null,
-					monetary_account_id_fallback: null
-				},
-				{},
-				{
-					isEncrypted: true
-				}
-			)
-		);
-
-		return response.Response;
-	}
 }
